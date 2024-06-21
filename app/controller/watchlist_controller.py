@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 from sqlalchemy.exc import IntegrityError
 
-from app.business.exceptions import TableIntegrityViolatedException
+from app.business.exceptions import TableIntegrityViolatedException, RecordNotFoundException
 
 from app.entity import WatchlistEntity
 
@@ -18,17 +18,17 @@ def add_to_watchlist(movie_id: int, user_id: int = 1) -> None:
     """
     session = Session()
     try:
-        watchlist = WatchlistEntity(movie_id=movie_id, user_id=user_id, 
-                        insert_date=datetime.now())
+        watchlist = WatchlistEntity(
+            movie_id=movie_id, 
+            user_id=user_id, 
+            insert_date=datetime.now()
+        )
         session.add(watchlist)
         session.commit()
-        session.close()
     except IntegrityError as e:
         raise TableIntegrityViolatedException()
+    finally:
         session.close()
-    except Exception as error:
-        session.close()
-        raise error
     
 def remove_from_watchlist(movie_id: int, user_id: int = 1) -> None:
     """
@@ -49,12 +49,11 @@ def remove_from_watchlist(movie_id: int, user_id: int = 1) -> None:
         session.close()
         raise error
 
-def get_watchlist(user_id: int = 1) -> List[int]:
+def get_watchlist_movies(user_id: int = 1) -> List[int]:
     """
     Adiciona o filme na lista para assistir do usuário.
 
     Parâmetros:
-        movie_id: ID do filme do TMDB API.
         user_id: ID do usuário.
     """
     session = Session()
@@ -63,9 +62,9 @@ def get_watchlist(user_id: int = 1) -> List[int]:
             filter(WatchlistEntity.user_id == user_id). \
             order_by(WatchlistEntity.insert_datetime). \
             all()
+        if not watchlist:
+            raise RecordNotFoundException()
         movies_id = [item.movie_id for item in watchlist]
-        session.close()
         return movies_id
-    except Exception as error:
+    finally:
         session.close()
-        raise error

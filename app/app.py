@@ -1,6 +1,7 @@
 from flask_openapi3 import OpenAPI, Info, Tag
 from flask import redirect, Response
 from flask_cors import CORS
+from pydantic import BaseModel
 
 from app import *
 
@@ -35,9 +36,9 @@ def post_add_to_watchlist(body: AddToWatchlistBodyModel) -> Response:
     try:
         add_to_watchlist(movie_id=body.movie_id)
         return make_success_response(message='Filme adicionado com sucesso!')
-    except TableIntegrityViolatedException as e:
+    except TableIntegrityViolatedException:
         return make_error_response(message='Integridade da tabela violada!', code=409)
-    except Exception as error:
+    except Exception:
         return make_error_response(message='Erro ao adicionar filme!', code=400)
     
 @app.delete(rule='/api/watchlist/remove/<int:movie_id>')
@@ -48,28 +49,64 @@ def delete_remove_from_watchlist(path: RemoveFromWatchlistPathModel) -> Response
     try:
         remove_from_watchlist(movie_id=path.movie_id)
         return make_success_response(message='Filme removido com sucesso!')
-    except Exception as error:
-        print(f'Erro ao remover filme: {str(error)}')
+    except Exception:
         return make_error_response(message='Erro ao remover filme', code=400)
+    
+@app.get(rule='/api/watchlist')
+def get_watchlist() -> Response:
+    """
+    Rota para recuperar uma lista para assistir.
+    """
+    try:
+        ids = get_watchlist_movies()
+        return make_json_response(
+            WatchlistModel(movie_ids=ids)
+        )
+    except RecordNotFoundException:
+        return make_error_response(
+            message='Lista não encontrada!',
+            code=404
+        )
+    except Exception:
+        return make_error_response(
+            message='Erro ao recuperar lista para assistir!',
+            code=400
+        )
     
 def make_success_response(message: str) -> Response:
     """
     Produz uma resposta padrão de sucesso no formato JSON.
+
+    Parâmetro:
+        message: Mensagem de sucesso.
     """
     success = SuccessModel(message=message)
-    return Response(
-        mimetype=JSON_MIMETYPE,
-        status=200,
-        response=success.model_dump_json()
-    )
+    return make_json_response(model=success)
 
 def make_error_response(message: str, code: int) -> Response:
     """
     Produz uma resposta padrão de erro no formato JSON.
+
+    Parâmetro:
+        message: Mensagem de sucesso.
+        code: Código HTTP de erro.
     """
     error = ErrorSchema(error_massage=message)
+    return make_json_response(
+        model=error,
+        code=code
+    )
+
+def make_json_response(model: BaseModel, code: int = 200) -> Response:
+    """
+    Produz uma resposta padrão de erro no formato JSON.
+
+    Parâmetros:
+        model: Modelo que será convertido em JSON.
+        code: Código HTTP de erro.
+    """
     return Response(
         mimetype=JSON_MIMETYPE,
         status=code,
-        response=error.model_dump_json()
+        response=model.model_dump_json()
     )
