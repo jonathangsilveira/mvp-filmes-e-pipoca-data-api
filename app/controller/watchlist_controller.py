@@ -1,7 +1,11 @@
 from datetime import datetime
 from typing import List
+from sqlalchemy.exc import IntegrityError
+
+from app.business.exceptions import TableIntegrityViolatedException
 
 from app.entity import WatchlistEntity
+
 from app.database import Session
 
 def add_to_watchlist(movie_id: int, user_id: int = 1) -> None:
@@ -18,6 +22,9 @@ def add_to_watchlist(movie_id: int, user_id: int = 1) -> None:
                         insert_date=datetime.now())
         session.add(watchlist)
         session.commit()
+        session.close()
+    except IntegrityError as e:
+        raise TableIntegrityViolatedException()
         session.close()
     except Exception as error:
         session.close()

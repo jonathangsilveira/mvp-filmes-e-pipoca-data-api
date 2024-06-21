@@ -35,8 +35,10 @@ def post_add_to_watchlist(body: AddToWatchlistBodyModel) -> Response:
     try:
         add_to_watchlist(movie_id=body.movie_id)
         return make_success_response(message='Filme adicionado com sucesso!')
+    except TableIntegrityViolatedException as e:
+        return make_error_response(message='Integridade da tabela violada!', code=409)
     except Exception as error:
-        return make_error_response(message='', code=400)
+        return make_error_response(message='Erro ao adicionar filme!', code=400)
     
 @app.delete(rule='/api/watchlist/remove/<int:movie_id>')
 def delete_remove_from_watchlist(path: RemoveFromWatchlistPathModel) -> Response:
