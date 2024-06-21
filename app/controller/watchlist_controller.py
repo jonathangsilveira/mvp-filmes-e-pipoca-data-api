@@ -4,7 +4,7 @@ from typing import List
 from app.entity import WatchlistEntity
 from app.database import Session
 
-async def add_to_watchlist(movie_id: int, user_id: int = 1) -> None:
+def add_to_watchlist(movie_id: int, user_id: int = 1) -> None:
     """
     Adiciona o filme na lista para assistir do usuário.
 
@@ -23,7 +23,7 @@ async def add_to_watchlist(movie_id: int, user_id: int = 1) -> None:
         session.close()
         raise error
     
-async def remove_from_watchlist(movie_id: int, user_id: int = 1) -> None:
+def remove_from_watchlist(movie_id: int, user_id: int = 1) -> None:
     """
     Remover o filme na lista para assistir do usuário.
 
@@ -33,7 +33,7 @@ async def remove_from_watchlist(movie_id: int, user_id: int = 1) -> None:
     """
     session = Session()
     try:
-        movies = session.filter(WatchlistEntity.user_id == user_id, WatchlistEntity.movie_id == movie_id).all()
+        movies = session.query(WatchlistEntity).filter(WatchlistEntity.user_id == user_id, WatchlistEntity.movie_id == movie_id).all()
         if movies:
             session.delete(movies[0])
             session.commit()
@@ -42,7 +42,7 @@ async def remove_from_watchlist(movie_id: int, user_id: int = 1) -> None:
         session.close()
         raise error
 
-async def get_watchlist(user_id: int = 1) -> List[int]:
+def get_watchlist(user_id: int = 1) -> List[int]:
     """
     Adiciona o filme na lista para assistir do usuário.
 

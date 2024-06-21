@@ -4,7 +4,7 @@ from typing import List
 from app.entity import RatedMoviesEntity
 from app.database import Session
 
-async def rate_movie(movie_id: int, rate_value: int, user_id: int = 1) -> None:
+def rate_movie(movie_id: int, rate_value: int, user_id: int = 1) -> None:
     """
     Define nota para avaliação do filme.
 
