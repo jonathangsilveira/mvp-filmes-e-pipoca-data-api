@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import List, Optional
 
 class RateMoviePathModel(BaseModel):
     """
@@ -45,3 +44,15 @@ class WatchlistModel(BaseModel):
         movie_ids: Lista de IDs dos filmes registrados na lista para assistir.
     """
     movie_ids: list[int]
+
+class SuccessModel(BaseModel):
+    """
+    Define contraro para exibição de resultado de sucesso padrão.
+    """
+    message: str = 'Operação concluída com sucesso!'
+
+class ErrorSchema(BaseModel):
+    """
+    Define contrato para exibição de erros da API.
+    """
+    error_massage: str = "Erro ao adicionar filme na watchlist!"
