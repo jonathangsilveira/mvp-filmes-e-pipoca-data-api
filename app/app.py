@@ -9,6 +9,11 @@ info = Info(title="MVP Data API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 CORS(app)
 
+rate_tag = Tag(name='Avaliação de filmes', 
+               description='Avaliar um filme atribuindo uma nota de 0 a 10')
+watchlist_tag = Tag(name='Lista para assistir depois', 
+                    description='Adição, remoção e visualização de lista com filmes.')
+
 JSON_MIMETYPE = 'application/json'
 
 @app.route('/api')
@@ -17,7 +22,8 @@ def swagger_doc():
     """
     return redirect('/openapi/swagger')
 
-@app.put(rule='/api/movie/rate/<int:movie_id>')
+@app.put(rule='/api/movie/rate/<int:movie_id>', tags=[rate_tag], 
+         responses={200: SuccessModel, 400: ErrorModel})
 def put_rate_movie(path: RateMoviePathModel, body: RateMovieBodyModel) -> Response:
     """
     Rota para avaliação de filme.
@@ -28,7 +34,8 @@ def put_rate_movie(path: RateMoviePathModel, body: RateMovieBodyModel) -> Respon
     except Exception as error:
         return make_error_response(message='Erro ao avaliar filme!', code=404)
     
-@app.post(rule='/api/watchlist/add')
+@app.post(rule='/api/watchlist/add', tags=[watchlist_tag], 
+          responses={200: SuccessModel, 400: ErrorModel, 409: ErrorModel})
 def post_add_to_watchlist(body: AddToWatchlistBodyModel) -> Response:
     """
     Rota para adicionar uma filme na lista para assistir.
@@ -41,7 +48,8 @@ def post_add_to_watchlist(body: AddToWatchlistBodyModel) -> Response:
     except Exception:
         return make_error_response(message='Erro ao adicionar filme!', code=400)
     
-@app.delete(rule='/api/watchlist/remove/<int:movie_id>')
+@app.delete(rule='/api/watchlist/remove/<int:movie_id>', tags=[watchlist_tag], 
+            responses={200: SuccessModel, 400: ErrorModel})
 def delete_remove_from_watchlist(path: RemoveFromWatchlistPathModel) -> Response:
     """
     Rota para adicionar uma filme na lista para assistir.
@@ -52,7 +60,8 @@ def delete_remove_from_watchlist(path: RemoveFromWatchlistPathModel) -> Response
     except Exception:
         return make_error_response(message='Erro ao remover filme', code=400)
     
-@app.get(rule='/api/watchlist')
+@app.get(rule='/api/watchlist', tags=[watchlist_tag], 
+         responses={200: WatchlistModel, 400: ErrorModel, 404: ErrorModel})
 def get_watchlist() -> Response:
     """
     Rota para recuperar uma lista para assistir.
@@ -91,7 +100,7 @@ def make_error_response(message: str, code: int) -> Response:
         message: Mensagem de sucesso.
         code: Código HTTP de erro.
     """
-    error = ErrorSchema(error_massage=message)
+    error = ErrorModel(error_massage=message)
     return make_json_response(
         model=error,
         code=code

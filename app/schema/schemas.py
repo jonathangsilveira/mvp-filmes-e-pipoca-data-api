@@ -51,7 +51,7 @@ class SuccessModel(BaseModel):
     """
     message: str = 'Operação concluída com sucesso!'
 
-class ErrorSchema(BaseModel):
+class ErrorModel(BaseModel):
     """
     Define contrato para exibição de erros da API.
     """
