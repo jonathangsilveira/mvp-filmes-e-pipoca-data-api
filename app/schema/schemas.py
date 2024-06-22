@@ -23,6 +23,7 @@ class AddToWatchlistBodyModel(BaseModel):
     Define contrato para adicionar um filme da lista para assistir.
 
     Parâmetros:
+        watchlist: ID da watchlist.
         movie_id: ID do filme do TMDB API.
     """
     movie_id: int = 1022789
@@ -32,9 +33,19 @@ class RemoveFromWatchlistPathModel(BaseModel):
     Define contrato para remover um filme da lista para assistir.
 
     Parâmetros:
+        watchlist: ID da watchlist.
         movie_id: ID do filme do TMDB API.
     """
     movie_id: int = 1022789
+
+class GetWatchlistPathModel(BaseModel):
+    """
+    Define contrato para adicionar um filme da lista para assistir.
+
+    Parâmetros:
+        watchlist: ID da watchlist.
+    """
+    watchlist_id: int = 1
 
 class WatchlistModel(BaseModel):
     """

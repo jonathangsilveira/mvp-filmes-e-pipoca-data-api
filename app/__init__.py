@@ -1,5 +1,5 @@
 from app.schema.schemas import RateMoviePathModel, RateMovieBodyModel
-from app.schema.schemas import AddToWatchlistBodyModel, RemoveFromWatchlistPathModel, WatchlistModel
+from app.schema.schemas import AddToWatchlistBodyModel, RemoveFromWatchlistPathModel, WatchlistModel, GetWatchlistPathModel
 from app.schema.schemas import SuccessModel, ErrorModel
 
 from app.controller.rate_controller import rate_movie

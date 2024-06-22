@@ -60,17 +60,15 @@ def delete_remove_from_watchlist(path: RemoveFromWatchlistPathModel) -> Response
     except Exception:
         return make_error_response(message='Erro ao remover filme', code=400)
     
-@app.get(rule='/api/watchlist', tags=[watchlist_tag], 
+@app.get(rule='/api/watchlist/<int:watchlist_id>', tags=[watchlist_tag], 
          responses={200: WatchlistModel, 400: ErrorModel, 404: ErrorModel})
-def get_watchlist() -> Response:
+def get_watchlist(path: GetWatchlistPathModel) -> Response:
     """
     Rota para recuperar uma lista para assistir.
     """
     try:
-        ids = get_watchlist_movies()
-        return make_json_response(
-            WatchlistModel(movie_ids=ids)
-        )
+        watchlist = get_watchlist_movies(path.watchlist_id)
+        return make_json_response(watchlist)
     except RecordNotFoundException:
         return make_error_response(
             message='Lista não encontrada!',
