@@ -38,7 +38,7 @@ class RemoveFromWatchlistPathModel(BaseModel):
     """
     movie_id: int = 1022789
 
-class GetWatchlistPathModel(BaseModel):
+class GetWatchlistQueryModel(BaseModel):
     """
     Define contrato para adicionar um filme da lista para assistir.
 

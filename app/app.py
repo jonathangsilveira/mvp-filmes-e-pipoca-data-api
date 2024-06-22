@@ -34,7 +34,7 @@ def put_rate_movie(path: RateMoviePathModel, body: RateMovieBodyModel) -> Respon
     except Exception as error:
         return make_error_response(message='Erro ao avaliar filme!', code=404)
     
-@app.post(rule='/api/watchlist/add', tags=[watchlist_tag], 
+@app.post(rule='/api/watchlist/<int:watchlist_id>/add', tags=[watchlist_tag], 
           responses={200: SuccessModel, 400: ErrorModel, 409: ErrorModel})
 def post_add_to_watchlist(body: AddToWatchlistBodyModel) -> Response:
     """
@@ -48,7 +48,7 @@ def post_add_to_watchlist(body: AddToWatchlistBodyModel) -> Response:
     except Exception:
         return make_error_response(message='Erro ao adicionar filme!', code=400)
     
-@app.delete(rule='/api/watchlist/remove/<int:movie_id>', tags=[watchlist_tag], 
+@app.delete(rule='/api/watchlist/<int:watchlist_id>/remove/<int:movie_id>', tags=[watchlist_tag], 
             responses={200: SuccessModel, 400: ErrorModel})
 def delete_remove_from_watchlist(path: RemoveFromWatchlistPathModel) -> Response:
     """
@@ -60,14 +60,14 @@ def delete_remove_from_watchlist(path: RemoveFromWatchlistPathModel) -> Response
     except Exception:
         return make_error_response(message='Erro ao remover filme', code=400)
     
-@app.get(rule='/api/watchlist/<int:watchlist_id>', tags=[watchlist_tag], 
+@app.get(rule='/api/watchlist', tags=[watchlist_tag], 
          responses={200: WatchlistModel, 400: ErrorModel, 404: ErrorModel})
-def get_watchlist(path: GetWatchlistPathModel) -> Response:
+def get_watchlist(query: GetWatchlistQueryModel) -> Response:
     """
     Rota para recuperar uma lista para assistir.
     """
     try:
-        watchlist = get_watchlist_movies(path.watchlist_id)
+        watchlist = get_watchlist_movies(query.watchlist_id)
         return make_json_response(watchlist)
     except RecordNotFoundException:
         return make_error_response(
