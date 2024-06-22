@@ -4,43 +4,69 @@ from sqlalchemy.exc import IntegrityError
 
 from app.business.exceptions import TableIntegrityViolatedException, RecordNotFoundException
 
-from app.entity import WatchlistEntity
+from app.schema.schemas import WatchlistModel
+
+from app.entity import WatchlistEntity, WatchlistItemEntity
 
 from app.database import Session
 
-def add_to_watchlist(movie_id: int, user_id: int = 1) -> None:
+def create_watchlist(user_id: int = 1) -> None:
     """
-    Adiciona o filme na lista para assistir do usuário.
+    Cria um registro da lista.
 
-    Parâmetros:
-        movie_id: ID do filme do TMDB API.
+    Parâmetro:
         user_id: ID do usuário.
     """
     session = Session()
     try:
         watchlist = WatchlistEntity(
-            movie_id=movie_id, 
             user_id=user_id, 
             insert_date=datetime.now()
         )
         session.add(watchlist)
         session.commit()
-    except IntegrityError as e:
+    except IntegrityError:
+        raise TableIntegrityViolatedException()
+    finally:
+        session.close()
+
+def add_to_watchlist(movie_id: int, watchlist_id: int) -> None:
+    """
+    Adiciona o filme na lista para assistir do usuário.
+
+    Parâmetros:
+        movie_id: ID do filme do TMDB API.
+        watchlist_id: ID do watchlist.
+    """
+    session = Session()
+    try:
+        watchlist_item = WatchlistItemEntity(
+            watchlist_id=watchlist_id,
+            movie_id=movie_id, 
+            insert_date=datetime.now()
+        )
+        session.add(watchlist_item)
+        session.commit()
+    except IntegrityError:
         raise TableIntegrityViolatedException()
     finally:
         session.close()
     
-def remove_from_watchlist(movie_id: int, user_id: int = 1) -> None:
+def remove_from_watchlist(movie_id: int, watchlist_id: int) -> None:
     """
     Remover o filme na lista para assistir do usuário.
 
     Parâmetros:
         movie_id: ID do filme do TMDB API.
-        user_id: ID do usuário.
+        watchlist_id: ID do watchlist.
     """
     session = Session()
     try:
-        movies = session.query(WatchlistEntity).filter(WatchlistEntity.user_id == user_id, WatchlistEntity.movie_id == movie_id).all()
+        movies = session.query(WatchlistItemEntity). \
+            filter(
+                WatchlistItemEntity.watchlist_id == watchlist_id, 
+                WatchlistItemEntity.movie_id == movie_id
+            ).all()
         if movies:
             session.delete(movies[0])
             session.commit()
@@ -49,22 +75,24 @@ def remove_from_watchlist(movie_id: int, user_id: int = 1) -> None:
         session.close()
         raise error
 
-def get_watchlist_movies(user_id: int = 1) -> List[int]:
+def get_watchlist_movies(watchlist_id: int) -> WatchlistModel:
     """
     Adiciona o filme na lista para assistir do usuário.
 
     Parâmetros:
-        user_id: ID do usuário.
+        watchlist_id: ID do watchlist.
     """
     session = Session()
     try:
-        watchlist = session.query(WatchlistEntity). \
-            filter(WatchlistEntity.user_id == user_id). \
-            order_by(WatchlistEntity.insert_datetime). \
-            all()
+        watchlist = session.get(WatchlistEntity, watchlist_id)
         if not watchlist:
             raise RecordNotFoundException()
-        movies_id = [item.movie_id for item in watchlist]
-        return movies_id
+        items = session.query(WatchlistItemEntity). \
+            filter(WatchlistItemEntity.watchlist_id == watchlist_id). \
+            order_by(WatchlistEntity.insert_datetime). \
+            all()
+        return WatchlistModel(
+            movie_ids=[item.movie_id for item in items]
+        )
     finally:
         session.close()
