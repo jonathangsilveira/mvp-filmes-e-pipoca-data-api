@@ -34,14 +34,14 @@ def put_rate_movie(path: RateMoviePathModel, body: RateMovieBodyModel) -> Respon
     except Exception as error:
         return make_error_response(message='Erro ao avaliar filme!', code=404)
     
-@app.post(rule='/api/watchlist/<int:watchlist_id>/add', tags=[watchlist_tag], 
+@app.post(rule='/api/watchlist/<int:watchlist_id>/add/<int:movie_id>', tags=[watchlist_tag], 
           responses={200: SuccessModel, 400: ErrorModel, 409: ErrorModel})
-def post_add_to_watchlist(body: AddToWatchlistBodyModel) -> Response:
+def post_add_to_watchlist(path: AddToWatchlistPathModel) -> Response:
     """
     Rota para adicionar uma filme na lista para assistir.
     """
     try:
-        add_to_watchlist(movie_id=body.movie_id)
+        add_to_watchlist(watchlist_id=path.watchlist_id, movie_id=path.movie_id)
         return make_success_response(message='Filme adicionado com sucesso!')
     except TableIntegrityViolatedException:
         return make_error_response(message='Integridade da tabela violada!', code=409)
@@ -55,7 +55,7 @@ def delete_remove_from_watchlist(path: RemoveFromWatchlistPathModel) -> Response
     Rota para adicionar uma filme na lista para assistir.
     """
     try:
-        remove_from_watchlist(movie_id=path.movie_id)
+        remove_from_watchlist(watchlist_id=path.watchlist_id, movie_id=path.movie_id)
         return make_success_response(message='Filme removido com sucesso!')
     except Exception:
         return make_error_response(message='Erro ao remover filme', code=400)
@@ -79,7 +79,27 @@ def get_watchlist(query: GetWatchlistQueryModel) -> Response:
             message='Erro ao recuperar lista para assistir!',
             code=400
         )
-    
+
+@app.post(rule='/api/watchlist/create', tags=[watchlist_tag], 
+          responses={200: WatchlistCreatedModel, 400: ErrorModel, 404: ErrorModel})
+def post_create_watchlist() -> Response:
+    """
+    Rota para criar uma nova uma lista.
+    """
+    try:
+        watchlist = create_watchlist()
+        return make_json_response(model=watchlist)
+    except RecordNotFoundException:
+        return make_error_response(
+            message='Lista não encontrada!',
+            code=404
+        )
+    except Exception:
+        return make_error_response(
+            message='Erro ao recuperar lista para assistir!',
+            code=400
+        )
+
 def make_success_response(message: str) -> Response:
     """
     Produz uma resposta padrão de sucesso no formato JSON.

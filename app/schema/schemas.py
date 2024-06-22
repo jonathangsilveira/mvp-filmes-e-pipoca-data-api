@@ -18,7 +18,7 @@ class RateMovieBodyModel(BaseModel):
     """
     rate_value: int = 9
 
-class AddToWatchlistBodyModel(BaseModel):
+class AddToWatchlistPathModel(BaseModel):
     """
     Define contrato para adicionar um filme da lista para assistir.
 
@@ -26,6 +26,7 @@ class AddToWatchlistBodyModel(BaseModel):
         watchlist: ID da watchlist.
         movie_id: ID do filme do TMDB API.
     """
+    watchlist_id: int = 1
     movie_id: int = 1022789
 
 class RemoveFromWatchlistPathModel(BaseModel):
@@ -36,6 +37,7 @@ class RemoveFromWatchlistPathModel(BaseModel):
         watchlist: ID da watchlist.
         movie_id: ID do filme do TMDB API.
     """
+    watchlist_id: int = 1
     movie_id: int = 1022789
 
 class GetWatchlistQueryModel(BaseModel):
@@ -47,13 +49,24 @@ class GetWatchlistQueryModel(BaseModel):
     """
     watchlist_id: int = 1
 
+class WatchlistCreatedModel(BaseModel):
+    """
+    Define contrato para exibição da lista criada.
+
+    Parâmetros:
+        watchlist: ID da watchlist.
+    """
+    watchlist_id: int = 1
+
 class WatchlistModel(BaseModel):
     """
     Define contrato para exibição de resultados da lista para assistir.
 
     Parâmetros:
+        watchlist: ID da watchlist.
         movie_ids: Lista de IDs dos filmes registrados na lista para assistir.
     """
+    watchlist_id: int
     movie_ids: list[int]
 
 class SuccessModel(BaseModel):

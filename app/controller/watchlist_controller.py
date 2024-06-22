@@ -4,13 +4,13 @@ from sqlalchemy.exc import IntegrityError
 
 from app.business.exceptions import TableIntegrityViolatedException, RecordNotFoundException
 
-from app.schema.schemas import WatchlistModel
+from app.schema.schemas import WatchlistModel, WatchlistCreatedModel
 
 from app.entity import WatchlistEntity, WatchlistItemEntity
 
 from app.database import Session
 
-def create_watchlist(user_id: int = 1) -> None:
+def create_watchlist(user_id: int = 1) -> WatchlistCreatedModel:
     """
     Cria um registro da lista.
 
@@ -25,6 +25,7 @@ def create_watchlist(user_id: int = 1) -> None:
         )
         session.add(watchlist)
         session.commit()
+        return WatchlistCreatedModel(watchlist_id=watchlist.id)
     except IntegrityError:
         raise TableIntegrityViolatedException()
     finally:
@@ -89,9 +90,10 @@ def get_watchlist_movies(watchlist_id: int) -> WatchlistModel:
             raise RecordNotFoundException()
         items = session.query(WatchlistItemEntity). \
             filter(WatchlistItemEntity.watchlist_id == watchlist_id). \
-            order_by(WatchlistEntity.insert_datetime). \
+            order_by(WatchlistItemEntity.insert_datetime). \
             all()
         return WatchlistModel(
+            watchlist_id=watchlist_id,
             movie_ids=[item.movie_id for item in items]
         )
     finally:
