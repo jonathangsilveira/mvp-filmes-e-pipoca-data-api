@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app import *
 
-info = Info(title="MVP Data API", version="1.0.0")
+info = Info(title="MVP Filmes e Pipoca Data API", version="1.0.0")
 app = OpenAPI(__name__, info=info)
 CORS(app)
 
