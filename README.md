@@ -61,17 +61,17 @@ pip install -r requirements.txt
 Para executar a API basta executar:
 
 ```
-flask --app .\app\app.py  run --host 0.0.0.0 --port 5000
+flask --app .\app\app.py  run --host 0.0.0.0 --port 5100
 ```
 
 Em modo de desenvolvimento é recomendado executar utilizando o parâmetro reload, que reiniciará o servidor
 automaticamente após uma mudança no código fonte. 
 
 ```
-flask --app .\app\app.py  run --host 0.0.0.0 --port 5000 --reload
+flask --app .\app\app.py  run --host 0.0.0.0 --port 5100 --reload
 ```
 
-Abra o [http://localhost:5000/api/](http://localhost:5000/api) no navegador para verificar o status da API em execução.
+Abra o [http://localhost:5100/api/](http://localhost:5100/api) no navegador para verificar o status da API em execução.
 
 ---
 ## Como executar através do Docker
@@ -82,13 +82,13 @@ Navegue até o diretório que contém o Dockerfile e o requirements.txt no termi
 Execute **como administrador** o seguinte comando para construir a imagem Docker:
 
 ```
-$ docker buildx build -t mvp-filmes-e-pipoca-gateway-api .
+$ docker buildx build -t mvp-filmes-e-pipoca-data-api .
 ```
 
 Uma vez criada a imagem, para executar o container basta executar, **como administrador**, seguinte o comando:
 
 ```
-$ docker run -p 5000:5000 mvp-filmes-e-pipoca-gateway-api
+$ docker run -p 5100:5100 mvp-filmes-e-pipoca-data-api
 ```
 
-Uma vez executando, para acessar a API, basta abrir o [http://localhost:5000/api/](http://localhost:5000/api/) no navegador.
+Uma vez executando, para acessar a API, basta abrir o [http://localhost:5100/api/](http://localhost:5100/api/) no navegador.
